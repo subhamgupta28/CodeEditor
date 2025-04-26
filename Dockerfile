@@ -1,5 +1,5 @@
 # Start from an official OpenJDK image
-FROM openjdk:21-jdk
+FROM openjdk:21-jdk-slim as builder
 
 # Set working directory inside container
 WORKDIR /app
