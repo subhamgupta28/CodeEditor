@@ -16,7 +16,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CodeService {
 
-    private final Path workspaceDir = Paths.get("/home/subham/arduino-projects");
+    private final Path workspaceDir = Paths.get("/workspace");
 
     public void saveCode(Map<String, String> body) throws IOException {
         String code = body.get("code");
