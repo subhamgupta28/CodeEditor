@@ -1,50 +1,109 @@
-import {Grid, Button, Stack, Divider} from "@mui/material";
+import {Grid, Button, Stack, Divider, Tabs, Tab, Box, IconButton, Typography} from "@mui/material";
 import CodeEditor from "../components/CodeEditor";
 import ProjectExplorer from "../components/ProjectExplorer";
 import { useState } from "react";
-import axios from "axios";
+import { buildCode, getFileOpen, saveCode, uploadCode } from "../apis.jsx";
+import CloseIcon from '@mui/icons-material/Close';
 
 function EditorPage() {
-    const [editorContent, setEditorContent] = useState("");
-    const [currentFile, setCurrentFile] = useState("");
+    const [openFiles, setOpenFiles] = useState([]); // [{ filename, content }]
+    const [currentTab, setCurrentTab] = useState(0);
 
-
-    const saveCode = async () => {
-        if (!currentFile) return alert("No file selected!");
-        await axios.post("http://localhost:8011/api/code/save", {
-            code: editorContent,
-            file: currentFile,
-        });
+    const saveCodeHandle = async () => {
+        if (openFiles.length === 0) return alert("No file selected!");
+        const { filename, content } = openFiles[currentTab];
+        await saveCode(content, filename);
         alert("File saved!");
     };
 
-    const buildCode = async () => {
-        const res = await axios.post("http://localhost:8011/api/code/build");
+    const buildCodeHandle = async () => {
+        const res = await buildCode();
         alert(`Build finished with exit code ${res.data.exitCode}`);
     };
 
-    const uploadCode = async () => {
-        const res = await axios.post("http://localhost:8011/api/code/upload");
+    const uploadCodeHandle = async () => {
+        const res = await uploadCode();
         alert(`Upload finished with exit code ${res.data.exitCode}`);
     };
 
     const handleFileOpen = async (filename) => {
-        const res = await axios.get(`http://localhost:8011/api/code/open?file=${encodeURIComponent(filename)}`);
-        setEditorContent(res.data.content);
-        setCurrentFile(filename);
+        const existingIndex = openFiles.findIndex(f => f.filename === filename);
+        if (existingIndex !== -1) {
+            setCurrentTab(existingIndex);
+        } else {
+            const res = await getFileOpen(filename);
+            setOpenFiles(prev => [...prev, { filename, content: res.content }]);
+            setCurrentTab(openFiles.length); // new file at the end
+        }
+    };
+
+    const handleEditorChange = (value) => {
+        setOpenFiles(prev => {
+            const updated = [...prev];
+            updated[currentTab].content = value;
+            return updated;
+        });
+    };
+
+    const handleTabChange = (event, newValue) => {
+        setCurrentTab(newValue);
+    };
+
+    const handleTabClose = (event, index) => {
+        event.stopPropagation(); // prevent tab switching
+        setOpenFiles(prev => {
+            const updated = [...prev];
+            updated.splice(index, 1);
+            return updated;
+        });
+
+        if (currentTab >= index) {
+            setCurrentTab(prev => Math.max(0, prev - 1));
+        }
     };
 
     return (
-        <Stack direction="row" divider={<Divider orientation="vertical" flexItem/>}>
-            <div style={{width: '20%'}}>
+        <Stack direction="row" divider={<Divider orientation="vertical" flexItem />}>
+            <div style={{ width: '20%' }}>
                 <ProjectExplorer onFileSelect={handleFileOpen} />
             </div>
-            <div style={{width: '80%'}}>
-                <CodeEditor value={editorContent} onChange={setEditorContent} />
-                <Stack direction="row" spacing={2} mt={2}>
-                    <Button variant="contained" onClick={saveCode}>Save</Button>
-                    <Button variant="contained" onClick={buildCode}>Build</Button>
-                    <Button variant="contained" onClick={uploadCode}>Upload</Button>
+            <div style={{ width: '80%', height: '100vh', display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    <Tabs size="small" value={currentTab} onChange={handleTabChange} variant="scrollable" scrollButtons="auto">
+                        {openFiles.map((file, index) => (
+                            <Tab
+                                key={file.filename}
+                                label={
+                                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                                        <Typography variant="body1" component="body1" sx={{ textTransform: 'none' }}>
+                                            {file.filename.split('/').pop()}
+                                        </Typography>
+                                        <IconButton
+                                            size="small"
+                                            onClick={(event) => handleTabClose(event, index)}
+                                            sx={{ ml: 1 }}
+                                        >
+                                            <CloseIcon fontSize="small" />
+                                        </IconButton>
+                                    </div>
+                                }
+                            />
+                        ))}
+                    </Tabs>
+                </Box>
+                <Box flexGrow={1} overflow="auto">
+                    {openFiles.length > 0 && (
+                        <CodeEditor
+                            value={openFiles[currentTab]?.content || ''}
+                            extension={openFiles[currentTab]?.extension || ''}
+                            onChange={handleEditorChange}
+                        />
+                    )}
+                </Box>
+                <Stack direction="row" spacing={2} p={1}>
+                    <Button size="small" variant="contained" onClick={saveCodeHandle}>Save</Button>
+                    <Button size="small" variant="contained" onClick={buildCodeHandle}>Build</Button>
+                    <Button size="small" variant="contained" onClick={uploadCodeHandle}>Upload</Button>
                 </Stack>
             </div>
         </Stack>

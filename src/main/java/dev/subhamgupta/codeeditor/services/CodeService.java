@@ -43,7 +43,6 @@ public class CodeService {
     }
 
     public List<Map<String, Object>> listFiles() throws IOException {
-        // Build a tree structure
         Map<String, Map<String, Object>> pathMap = new HashMap<>();
 
         Files.walk(workspaceDir)
@@ -58,6 +57,16 @@ public class CodeService {
 
                     if (Files.isDirectory(path)) {
                         node.put("children", new ArrayList<Map<String, Object>>());
+                    } else {
+                        // If it's a file, add extension
+                        String filename = path.getFileName().toString();
+                        int dotIndex = filename.lastIndexOf('.');
+                        if (dotIndex != -1 && dotIndex < filename.length() - 1) {
+                            String extension = filename.substring(dotIndex + 1);
+                            node.put("extension", extension);
+                        } else {
+                            node.put("extension", ""); // No extension
+                        }
                     }
 
                     pathMap.put(relativePath, node);
@@ -88,6 +97,7 @@ public class CodeService {
 
         return roots;
     }
+
 
 
     public Map<String, String> openFile(String file) throws IOException {

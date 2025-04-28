@@ -9,9 +9,8 @@ import java.util.*;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/code")
+@RequestMapping("/api/v1/code")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*") // Allow React frontend
 public class CodeController {
 
     private final CodeService codeService;
