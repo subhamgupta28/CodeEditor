@@ -1,42 +1,76 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+.card-glow-container {
+  --start: 0;
+  position: relative;
+  border-radius: 14px;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.card-glow-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  border: 2px solid transparent;
+  background: var(--gradient);
+  background-attachment: fixed;
+  mask: linear-gradient(#0000, #0000),
+  conic-gradient(
+          from calc((var(--start) - 22) * 1deg),
+          #ffffff1f 0deg,
+          white,
+          #ffffff00 100deg
+  );
+  mask-composite: intersect;
+  mask-clip: padding-box, border-box;
+  opacity: 0;
+  transition: 0.5s ease;
+  pointer-events: none;
 }
 
-.card {
-  padding: 2em;
+.card-glow-container:hover::before {
+  opacity: 0.6;
 }
 
-.read-the-docs {
-  color: #888;
+.card-glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  filter: blur(24px);
+  opacity: 0;
+  transition: 1s ease;
+}
+:root {
+  --gradient: conic-gradient(
+          from 90deg at 50% 50%,
+          rgb(255, 224, 0),
+          rgb(255, 255, 255),
+          rgb(150, 46, 229),
+          rgba(252, 225, 43, 1),
+          rgb(150, 46, 229),
+          rgb(255, 255, 255),
+          rgb(255, 224, 0)
+  );
+}
+
+.card-glow::before {
+  content: '';
+  position: absolute;
+  inset: 1%;
+  border-radius: 14px;
+  border: 10px solid transparent;
+  background: var(--gradient);
+  background-attachment: fixed;
+  mask: linear-gradient(#0000, #0000),
+  conic-gradient(
+          from calc((var(--start) - 22) * 1deg),
+          #ffffff1f 0deg,
+          white,
+          #ffffff00 100deg
+  );
+  mask-composite: intersect;
+  mask-clip: padding-box, border-box;
+}
+
+.card-glow-container:hover .card-glow {
+  opacity: 1;
 }
