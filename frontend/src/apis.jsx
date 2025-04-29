@@ -31,3 +31,15 @@ export async function listFiles() {
     const res = await axios.get(BASE_URL + "code/list");
     return res.data;
 }
+
+export const createFile = async (filename) => {
+    return axios.post(BASE_URL +'code/create', { filename });
+};
+
+export const deleteFile = async (filename) => {
+    return axios.post(BASE_URL +'code/delete', { filename });
+};
+
+export const renameFile = async (oldName, newName) => {
+    return axios.post(BASE_URL +'code/rename', { oldName, newName });
+};

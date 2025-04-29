@@ -43,4 +43,19 @@ public class CodeController {
     public ResponseEntity<?> openFile(@RequestParam String file) throws IOException {
         return ResponseEntity.ok(codeService.openFile(file));
     }
+
+    @PostMapping("/create")
+    public ResponseEntity<?> createFile(@RequestBody Map<String, String> payload) throws IOException {
+        return ResponseEntity.ok(codeService.createFile(payload));
+    }
+
+    @PostMapping("/delete")
+    public ResponseEntity<Map<String, Object>> deleteFile(@RequestBody Map<String, String> payload) throws IOException {
+        return ResponseEntity.ok(codeService.deleteFile(payload));
+    }
+
+    @PostMapping("/rename")
+    public ResponseEntity<Map<String, Object>> renameFile(@RequestBody Map<String, String> payload) throws IOException {
+        return ResponseEntity.ok(codeService.renameFile(payload));
+    }
 }

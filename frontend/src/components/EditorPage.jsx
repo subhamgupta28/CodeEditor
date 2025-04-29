@@ -65,7 +65,21 @@ function EditorPage() {
     return (
         <Stack direction="row" divider={<Divider orientation="vertical" flexItem />}>
             <div style={{ width: '20%' }}>
-                <ProjectExplorer onFileSelect={handleFileOpen} />
+                <ProjectExplorer
+                    onFileSelect={handleFileOpen}
+                    onFileDelete={(deletedFile) => {
+                        setOpenFiles(prev => prev.filter(f => f.filename !== deletedFile));
+                    }}
+                    onFileRename={(oldName, newName) => {
+                        setOpenFiles(prev => prev.map(f => {
+                            if (f.filename === oldName) {
+                                return { ...f, filename: newName };
+                            }
+                            return f;
+                        }));
+                    }}
+                />
+
             </div>
             <div style={{ width: '80%', height: '100vh', display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>

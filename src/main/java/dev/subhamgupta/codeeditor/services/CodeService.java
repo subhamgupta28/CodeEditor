@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,8 +17,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CodeService {
 
-    private final Path workspaceDir = Paths.get("/workspace");
-//    private final Path workspaceDir = Paths.get("D:\\AutomataCapsule\\lib");
+//    private final Path workspaceDir = Paths.get("/workspace");
+    private final Path workspaceDir = Paths.get("D:\\AutomataCapsule\\lib");
 
     public void saveCode(Map<String, String> body) throws IOException {
         String code = body.get("code");
@@ -104,5 +105,50 @@ public class CodeService {
         Path filePath = workspaceDir.resolve(file);
         String content = Files.readString(filePath);
         return Map.of("content", content);
+    }
+
+    public Map<String, Object> renameFile(Map<String, String> payload)  throws IOException{
+        String oldName = payload.get("oldName");
+        String newName = payload.get("newName");
+
+        Path oldPath = workspaceDir.resolve(oldName);
+        Path newPath = workspaceDir.resolve(newName);
+
+        if (Files.exists(oldPath)) {
+            Files.createDirectories(newPath.getParent()); // Ensure parent dir exists
+            Files.move(oldPath, newPath, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        Map<String, Object> res = new HashMap<>();
+        res.put("success", true);
+        return res;
+    }
+
+    public Map<String, Object> deleteFile(Map<String, String> payload) throws IOException {
+        String filename = payload.get("filename");
+        Path filePath = workspaceDir.resolve(filename);
+
+        if (Files.exists(filePath)) {
+            Files.delete(filePath);
+        }
+
+        Map<String, Object> res = new HashMap<>();
+        res.put("success", true);
+        return res;
+    }
+
+    public Map<String, Object> createFile(Map<String, String> payload) throws IOException {
+        String filename = payload.get("filename");
+        Path filePath = workspaceDir.resolve(filename);
+
+        if (!Files.exists(filePath)) {
+            // Create parent directories if needed
+            Files.createDirectories(filePath.getParent());
+            Files.createFile(filePath);
+        }
+
+        Map<String, Object> res = new HashMap<>();
+        res.put("success", true);
+        return res;
     }
 }
