@@ -17,8 +17,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CodeService {
 
-//    private final Path workspaceDir = Paths.get("/workspace");
-    private final Path workspaceDir = Paths.get("D:\\AutomataCapsule\\lib");
+    private final Path workspaceDir = Paths.get("/workspace");
+//    private final Path workspaceDir = Paths.get("D:\\AutomataCapsule\\lib");
 
     public void saveCode(Map<String, String> body) throws IOException {
         String code = body.get("code");
